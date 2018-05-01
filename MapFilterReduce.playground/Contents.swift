@@ -108,7 +108,7 @@ let csv = names.reduce("===") {text, name in "\(text),\(name)"}
 
  These are variations on the plain `map` that flatten or compact the result. There are three situations where they apply:
 
- **1. Using on a sequence with a closure that returns a sequence:**
+ **1. Using `FlatMap` on a sequence with a closure that returns a sequence:**
 
  `Sequence.flatMap<S>(_ transform: (Element) -> S)
   -> [S.Element] where S : Sequence`
@@ -122,7 +122,7 @@ let allResults = results.flatMap { $0 }
 let passMarks = results.flatMap { $0.filter { $0 > 5} }
 // [7, 8, 9]
 /*:
- **2. Using on an optional:**
+ **2. Using `FlatMap` on an optional:**
 
  The closure takes the non-nil value of the optional and returns an optional. If the original optional is `nil` then `flatMap` returns `nil`:
 
@@ -131,7 +131,7 @@ let passMarks = results.flatMap { $0.filter { $0 > 5} }
 let input: Int? = Int("8")
 let passMark: Int? = input.flatMap { $0 > 5 ? $0 : nil}
 /*:
- **3. Using on a sequence with a closure that returns an optional:**
+ **3. Using `CompactMap` on a sequence with a closure that returns an optional:**
 
  `Sequence.compactMap<U>(_ transform: (Element) -> U?) -> U?`
 
@@ -144,6 +144,9 @@ validNames
 let counts = keys.compactMap { $0?.count }
 counts
 // [3, 5, 5]
+/*:
+ See also: [Replacing flatMap with compactMap](https://useyourloaf.com/blog/replacing-flatmap-with-compactmap/).
+ */
 /*:
 ### Chaining
 
