@@ -1,9 +1,9 @@
 //: ## Swift Guide To Map Filter Reduce
-//: Using `map`, `filter` or `reduce` to operate on Swift collection types such as `Array` or `Dictionary` is something that can take getting used to. Unless you have experience with functional languages your instinct may be to reach for the more familiar *for-in loop*. With that in mind here is my guide to using `map`, `filter`, `reduce` (and `flatMap`).
+//: Using `map`, `filter` or `reduce` to operate on Swift collection types such as `Array` or `Dictionary` is something that can take getting used to. Unless you have experience with functional languages your instinct may be to reach for the more familiar *for-in loop*. With that in mind here is my guide to using `map`, `filter`, `reduce` (and `flatMap` and `compactMap`).
 //:
 //: Original blog post: [Swift Guide To Map Filter Reduce](https://useyourloaf.com/blog/swift-guide-to-map-filter-reduce/)
 //:
-//: *Updated 9-Feb-2018 for Xcode 9.2 and Swift 4.0*
+//: *Updated 1-May-2018 for Xcode 9.3 and Swift 4.1*
 
 import Foundation
 
@@ -104,52 +104,46 @@ let names = ["alan","brian","charlie"]
 let csv = names.reduce("===") {text, name in "\(text),\(name)"}
 // "===,alan,brian,charlie"
 /*:
-### FlatMap
+### FlatMap and CompactMap
 
-**The simplest use is as the name suggests to flatten a collection of collections.**
-*/
-let collections = [[5,2,7],[4,8],[9,1,3]]
-let flat = collections.flatMap { $0 }
+ These are variations on the plain `map` that flatten or compact the result. There are three situations where they apply:
+
+ **1. Using on a sequence with a closure that returns a sequence:**
+
+ `Sequence.flatMap<S>(_ transform: (Element) -> S)
+  -> [S.Element] where S : Sequence`
+
+ I think this was probably the first use of `flatMap` I came across in Swift. Use it to apply a closure to each element of a sequence and flatten the result:
+ */
+let results = [[5,2,7], [4,8], [9,1,3]]
+let allResults = results.flatMap { $0 }
 // [5, 2, 7, 4, 8, 9, 1, 3]
-/*:
-**Even more usefully it knows about optionals and will remove them from a collection.**
-*/
-let people: [String?] = ["Tom",nil,"Peter",nil,"Harry"]
-let valid = people.flatMap {$0}
-// ["Tom", "Peter", "Harry"]
-/*:
-**The real power of `flatMap` comes when you use it to produce an `Array` which is the flattened concatenation of transforming each of the subarrays.**
 
-For example to return an array of even integers contained in a collection of integer arrays by applying a filter to each item in the subarrays:
-*/
-// let collections = [[5,2,7],[4,8],[9,1,3]]
-let onlyEven = collections.flatMap {
-    intArray in intArray.filter { $0 % 2 == 0 }
-}
-// [2, 4, 8]
+let passMarks = results.flatMap { $0.filter { $0 > 5} }
+// [7, 8, 9]
 /*:
-Note that flatMap is iterating over the subarrays of integers so its argument is a closure whose argument `intArray` is of type `[Int]`. This is also a situation where I find the shorthand closure syntax hard to read but you could write this:
-*/
-let onlyEven2 = collections.flatMap { $0.filter { $0 % 2 == 0 } }
+ **2. Using on an optional:**
+
+ The closure takes the non-nil value of the optional and returns an optional. If the original optional is `nil` then `flatMap` returns `nil`:
+
+ `Optional.flatMap<U>(_ transform: (Wrapped) -> U?) -> U?`
+ */
+let input: Int? = Int("8")
+let passMark: Int? = input.flatMap { $0 > 5 ? $0 : nil}
 /*:
-Another example to produce a flat `Array` that contains the squares of each `Int` by applying a `map` to each subarray and then concatenating the result:
-*/
-let allSquared = collections.flatMap { $0.map { $0 * $0 } }
-/*:
-or in longer form:
-*/
-let allSquared2 = collections.flatMap {
-    intArray in intArray.map { $0 * $0 }
-}
-// [25, 4, 49, 16, 64, 81, 1, 9]
-/*:
-A final example that returns the individual sums of each of the arrays of integers by applying `reduce` to each of the subarrays:
-*/
-let sums = collections.flatMap { $0.reduce(0, +) }
-/*:
-Note though as someone helpfully pointed out to me this last example can be achieved with a plain map as reduce is returning an integer not an array:
-*/
-let sums2 = collections.map { $0.reduce(0, +) }
+ **3. Using on a sequence with a closure that returns an optional:**
+
+ `Sequence.compactMap<U>(_ transform: (Element) -> U?) -> U?`
+
+ Note that this use of `flatMap` was renamed to `compactMap` in Swift 4.1 (Xcode 9.3). It provides a convenient way to strip `nil` values from an array:
+ */
+let keys: [String?] = ["Tom", nil, "Peter", nil, "Harry"]
+let validNames = keys.compactMap { $0 }
+validNames
+// ["Tom", "Peter", "Harry"]
+let counts = keys.compactMap { $0?.count }
+counts
+// [3, 5, 5]
 /*:
 ### Chaining
 
