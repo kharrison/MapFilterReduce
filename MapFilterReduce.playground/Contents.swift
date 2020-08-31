@@ -69,7 +69,7 @@ In this case we are mapping a `Dictionary` so as we iterate over the collection 
 
 **Use `filter` to loop over a collection and return an `Array` containing only those elements that match an include condition.**
 
-![Swift reduce function](Reduce.png)
+![Swift filter function](Filter.png)
 
 The `filter` method has a single argument that specifies the include condition. This is a closure that takes as an argument the element from the collection and must return a `Bool` indicating if the item should be included in the result.
 
